@@ -1,172 +1,228 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Talking Translation Website</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4285f4, #34a853);
-      color: white;
-      text-align: center;
-      padding: 25px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Translator To English</title>
 
-    .box {
-      background: white;
-      color: black;
-      max-width: 650px;
-      margin: auto;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#4285f4,#34a853);
+    margin:0;
+    padding:20px;
+    text-align:center;
+}
 
-    textarea, select, button {
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
+.container{
+    background:white;
+    max-width:700px;
+    margin:auto;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,.25);
+}
 
-    button {
-      background: #4285f4;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
+h1{
+    color:#333;
+}
 
-    button:hover {
-      background: #2b6cdf;
-    }
+textarea{
+    width:100%;
+    height:140px;
+    padding:12px;
+    font-size:18px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
 
-    .mic {
-      background: #ea4335;
-    }
+select,button{
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+}
 
-    .speak {
-      background: #34a853;
-    }
+button{
+    cursor:pointer;
+    color:white;
+}
 
-    #output {
-      margin-top: 20px;
-      background: #f1f1f1;
-      padding: 15px;
-      border-radius: 10px;
-      min-height: 50px;
-      text-align: left;
-      color: black;
-    }
-  </style>
+.translate{
+    background:#4285f4;
+}
+
+.mic{
+    background:#ea4335;
+}
+
+.speak{
+    background:#34a853;
+}
+
+#output{
+    margin-top:20px;
+    padding:15px;
+    background:#f2f2f2;
+    border-radius:10px;
+    min-height:80px;
+    text-align:left;
+    color:black;
+    font-size:18px;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>🌍 Talking Translator</h1>
+<div class="container">
 
-  <div class="box">
-    <textarea id="text" rows="5" placeholder="Type or speak something in English..."></textarea>
+<h1>🌎 Voice Translator To English</h1>
 
-    <button class="mic" onclick="startListening()">🎤 Talk to it</button>
+<textarea id="inputText"
+placeholder="Type or speak in another language..."></textarea>
 
-    <select id="language">
-      <option value="es">Spanish</option>
-      <option value="fr">French</option>
-      <option value="de">German</option>
-      <option value="it">Italian</option>
-      <option value="pt">Portuguese</option>
-      <option value="ja">Japanese</option>
-      <option value="ko">Korean</option>
-      <option value="zh-CN">Chinese</option>
-      <option value="ar">Arabic</option>
-      <option value="ru">Russian</option>
-    </select>
+<select id="sourceLanguage">
+    <option value="es">Spanish</option>
+    <option value="fr">French</option>
+    <option value="de">German</option>
+    <option value="it">Italian</option>
+    <option value="pt">Portuguese</option>
+    <option value="ja">Japanese</option>
+    <option value="ko">Korean</option>
+    <option value="zh-CN">Chinese</option>
+    <option value="ar">Arabic</option>
+    <option value="ru">Russian</option>
+</select>
 
-    <button onclick="translateText()">Translate</button>
-    <button class="speak" onclick="speakTranslation()">🔊 Speak out loud</button>
+<button class="mic" onclick="startVoice()">
+🎤 Speak
+</button>
 
-    <div id="output">Translation will appear here...</div>
-  </div>
+<button class="translate" onclick="translateText()">
+🌍 Translate To English
+</button>
 
-  <script>
-    let translatedText = "";
+<button class="speak" onclick="speakEnglish()">
+🔊 Read English Translation
+</button>
 
-    async function translateText() {
-      const text = document.getElementById("text").value;
-      const language = document.getElementById("language").value;
-      const output = document.getElementById("output");
+<div id="output">
+English translation will appear here...
+</div>
 
-      if (text.trim() === "") {
-        output.innerText = "Please type or say something first.";
-        return;
-      }
+</div>
 
-      output.innerText = "Translating...";
+<script>
+let englishTranslation = "";
 
-      try {
-        const url = "https://api.mymemory.translated.net/get?q="
-          + encodeURIComponent(text)
-          + "&langpair=en|"
-          + language;
+function startVoice(){
 
-        const response = await fetch(url);
-        const data = await response.json();
+const SpeechRecognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
 
-        translatedText = data.responseData.translatedText;
-        output.innerText = translatedText;
+if(!SpeechRecognition){
+    alert("Speech recognition is not supported.");
+    return;
+}
 
-        speakTranslation();
+const recognition = new SpeechRecognition();
 
-      } catch (error) {
-        output.innerText = "Translation failed. Check your internet connection.";
-      }
-    }
+const langMap = {
+    "es":"es-ES",
+    "fr":"fr-FR",
+    "de":"de-DE",
+    "it":"it-IT",
+    "pt":"pt-PT",
+    "ja":"ja-JP",
+    "ko":"ko-KR",
+    "zh-CN":"zh-CN",
+    "ar":"ar-SA",
+    "ru":"ru-RU"
+};
 
-    function startListening() {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
+const selected =
+document.getElementById("sourceLanguage").value;
 
-      if (!SpeechRecognition) {
-        alert("Speech recognition does not work in this browser. Try Chrome or Safari.");
-        return;
-      }
+recognition.lang = langMap[selected];
 
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.start();
+recognition.start();
 
-      document.getElementById("output").innerText = "Listening...";
+document.getElementById("output").innerHTML =
+"🎤 Listening...";
 
-      recognition.onresult = function(event) {
-        const spokenText = event.results[0][0].transcript;
-        document.getElementById("text").value = spokenText;
-        translateText();
-      };
+recognition.onresult = function(event){
+    const text =
+    event.results[0][0].transcript;
 
-      recognition.onerror = function() {
-        document.getElementById("output").innerText = "I could not hear you. Try again.";
-      };
-    }
+    document.getElementById("inputText").value =
+    text;
 
-    function speakTranslation() {
-      if (translatedText.trim() === "") {
-        return;
-      }
+    translateText();
+};
+}
 
-      const language = document.getElementById("language").value;
+async function translateText(){
 
-      const speech = new SpeechSynthesisUtterance();
-      speech.text = translatedText;
-      speech.lang = language;
-      speech.rate = 0.9;
-      speech.pitch = 1;
+const text =
+document.getElementById("inputText").value.trim();
 
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(speech);
-    }
-  </script>
+if(!text){
+    return;
+}
+
+const source =
+document.getElementById("sourceLanguage").value;
+
+document.getElementById("output").innerHTML =
+"Translating...";
+
+try{
+
+const url =
+`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|en`;
+
+const response = await fetch(url);
+
+const data = await response.json();
+
+englishTranslation =
+data.responseData.translatedText;
+
+document.getElementById("output").innerHTML =
+englishTranslation;
+
+}
+catch(error){
+
+document.getElementById("output").innerHTML =
+"Translation failed.";
+}
+}
+
+function speakEnglish(){
+
+if(!englishTranslation){
+    return;
+}
+
+const speech =
+new SpeechSynthesisUtterance(
+englishTranslation
+);
+
+speech.lang = "en-US";
+speech.rate = 1;
+speech.pitch = 1;
+
+window.speechSynthesis.cancel();
+window.speechSynthesis.speak(speech);
+}
+</script>
 
 </body>
 </html>
