@@ -1,217 +1,248 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Two-Way Voice Translator</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Translator</title>
 
 <style>
 body{
-  font-family:Arial,sans-serif;
-  background:linear-gradient(135deg,#4285f4,#34a853);
-  margin:0;
-  padding:20px;
-  text-align:center;
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#4285f4,#34a853);
+    padding:20px;
 }
-.box{
-  background:white;
-  max-width:700px;
-  margin:auto;
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 0 20px rgba(0,0,0,.25);
+
+.container{
+    max-width:800px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 25px rgba(0,0,0,.25);
 }
-textarea,select,button{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  font-size:17px;
-  border-radius:10px;
-  box-sizing:border-box;
+
+h1{
+    text-align:center;
 }
+
+select,textarea,button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:10px;
+    font-size:17px;
+    box-sizing:border-box;
+}
+
 textarea{
-  height:130px;
-  border:1px solid #ccc;
+    height:140px;
+    resize:vertical;
 }
+
 button{
-  border:none;
-  color:white;
-  font-weight:bold;
+    border:none;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
 }
-.blue{background:#4285f4;}
-.red{background:#ea4335;}
-.green{background:#34a853;}
-.gray{background:#555;}
-#output{
-  margin-top:15px;
-  background:#f2f2f2;
-  padding:15px;
-  border-radius:10px;
-  min-height:70px;
-  text-align:left;
-  font-size:18px;
+
+.translate{background:#4285f4;}
+.voice{background:#ea4335;}
+.speak{background:#34a853;}
+.swap{background:#555;}
+
+#result{
+    margin-top:15px;
+    background:#f2f2f2;
+    padding:15px;
+    border-radius:10px;
+    min-height:80px;
+    font-size:18px;
 }
 </style>
 </head>
 
 <body>
-<div class="box">
-<h1>🌎 Two-Way Voice Translator</h1>
 
-<label>From:</label>
+<div class="container">
+
+<h1>🌍 Ultimate Translator</h1>
+
+<label><b>Translate From:</b></label>
 <select id="fromLang">
-  <option value="en">English</option>
-  <option value="es">Spanish</option>
-  <option value="fr">French</option>
-  <option value="de">German</option>
-  <option value="it">Italian</option>
-  <option value="pt">Portuguese</option>
-  <option value="ja">Japanese</option>
-  <option value="ko">Korean</option>
-  <option value="zh-CN">Chinese</option>
-  <option value="ar">Arabic</option>
-  <option value="ru">Russian</option>
+<option value="en">English</option>
+<option value="es">Spanish</option>
+<option value="fr">French</option>
+<option value="de">German</option>
+<option value="it">Italian</option>
+<option value="pt">Portuguese</option>
+<option value="ja">Japanese</option>
+<option value="ko">Korean</option>
+<option value="zh-CN">Chinese</option>
+<option value="ar">Arabic</option>
+<option value="ru">Russian</option>
 </select>
 
-<label>To:</label>
+<label><b>Translate To:</b></label>
 <select id="toLang">
-  <option value="es">Spanish</option>
-  <option value="en">English</option>
-  <option value="fr">French</option>
-  <option value="de">German</option>
-  <option value="it">Italian</option>
-  <option value="pt">Portuguese</option>
-  <option value="ja">Japanese</option>
-  <option value="ko">Korean</option>
-  <option value="zh-CN">Chinese</option>
-  <option value="ar">Arabic</option>
-  <option value="ru">Russian</option>
+<option value="es">Spanish</option>
+<option value="en">English</option>
+<option value="fr">French</option>
+<option value="de">German</option>
+<option value="it">Italian</option>
+<option value="pt">Portuguese</option>
+<option value="ja">Japanese</option>
+<option value="ko">Korean</option>
+<option value="zh-CN">Chinese</option>
+<option value="ar">Arabic</option>
+<option value="ru">Russian</option>
 </select>
 
-<button class="gray" onclick="swapLanguages()">🔁 Switch Back and Forth</button>
+<button class="swap" onclick="swapLanguages()">
+🔁 Swap Languages
+</button>
 
 <textarea id="inputText" placeholder="Type or speak here..."></textarea>
 
-<button class="red" onclick="startVoice()">🎤 Speak</button>
-<button class="blue" onclick="translateText()">🌍 Translate</button>
-<button class="green" onclick="speakTranslation()">🔊 Speak Translation</button>
+<button class="voice" onclick="startVoice()">
+🎤 Speak
+</button>
 
-<div id="output">Translation will appear here...</div>
+<button class="translate" onclick="translateText()">
+🌍 Translate
+</button>
+
+<button class="speak" onclick="speakResult()">
+🔊 Speak Translation
+</button>
+
+<div id="result">
+Translation will appear here...
+</div>
+
 </div>
 
 <script>
 let translatedText = "";
 
-const voiceLangs = {
-  "en":"en-US",
-  "es":"es-ES",
-  "fr":"fr-FR",
-  "de":"de-DE",
-  "it":"it-IT",
-  "pt":"pt-PT",
-  "ja":"ja-JP",
-  "ko":"ko-KR",
+const voices = {
+  en:"en-US",
+  es:"es-ES",
+  fr:"fr-FR",
+  de:"de-DE",
+  it:"it-IT",
+  pt:"pt-PT",
+  ja:"ja-JP",
+  ko:"ko-KR",
   "zh-CN":"zh-CN",
-  "ar":"ar-SA",
-  "ru":"ru-RU"
+  ar:"ar-SA",
+  ru:"ru-RU"
 };
 
 function swapLanguages(){
-  const from = document.getElementById("fromLang");
-  const to = document.getElementById("toLang");
-  const input = document.getElementById("inputText");
-  const output = document.getElementById("output");
+  let from = document.getElementById("fromLang");
+  let to = document.getElementById("toLang");
 
-  const oldFrom = from.value;
+  let temp = from.value;
   from.value = to.value;
-  to.value = oldFrom;
+  to.value = temp;
 
-  if(translatedText !== ""){
-    input.value = translatedText;
-    output.innerText = "Switched. Press Translate again.";
-    translatedText = "";
-  }
+  document.getElementById("inputText").value = translatedText;
 }
 
 function startVoice(){
+
   const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
 
   if(!SpeechRecognition){
-    alert("Speech does not work in this browser. Try Safari or Chrome.");
-    return;
+      alert("Speech recognition is not supported.");
+      return;
   }
 
   const recognition = new SpeechRecognition();
-  const from = document.getElementById("fromLang").value;
 
-  recognition.lang = voiceLangs[from];
+  const from =
+  document.getElementById("fromLang").value;
+
+  recognition.lang = voices[from];
+
   recognition.start();
 
-  document.getElementById("output").innerText = "🎤 Listening...";
+  document.getElementById("result").innerHTML =
+  "🎤 Listening...";
 
   recognition.onresult = function(event){
-    const spoken = event.results[0][0].transcript;
-    document.getElementById("inputText").value = spoken;
-    translateText();
-  };
 
-  recognition.onerror = function(){
-    document.getElementById("output").innerText = "I could not hear you. Try again.";
+      const text =
+      event.results[0][0].transcript;
+
+      document.getElementById("inputText").value =
+      text;
+
+      translateText();
   };
 }
 
 async function translateText(){
-  const text = document.getElementById("inputText").value.trim();
-  const from = document.getElementById("fromLang").value;
-  const to = document.getElementById("toLang").value;
-  const output = document.getElementById("output");
+
+  const text =
+  document.getElementById("inputText").value.trim();
+
+  const from =
+  document.getElementById("fromLang").value;
+
+  const to =
+  document.getElementById("toLang").value;
 
   if(text === ""){
-    output.innerText = "Type or speak something first.";
-    return;
+      return;
   }
 
-  if(from === to){
-    output.innerText = text;
-    translatedText = text;
-    return;
-  }
-
-  output.innerText = "Translating...";
+  document.getElementById("result").innerHTML =
+  "Translating...";
 
   try{
-    const url =
+
+      const response = await fetch(
       "https://api.mymemory.translated.net/get?q=" +
       encodeURIComponent(text) +
-      "&langpair=" + from + "|" + to;
+      "&langpair=" + from + "|" + to
+      );
 
-    const response = await fetch(url);
-    const data = await response.json();
+      const data = await response.json();
 
-    translatedText = data.responseData.translatedText;
-    output.innerText = translatedText;
-  }
-  catch(error){
-    output.innerText = "Translation failed. Check your internet.";
+      translatedText =
+      data.responseData.translatedText;
+
+      document.getElementById("result").innerHTML =
+      translatedText;
+
+  }catch(e){
+
+      document.getElementById("result").innerHTML =
+      "Translation failed.";
   }
 }
 
-function speakTranslation(){
-  if(translatedText.trim() === ""){
-    return;
-  }
+function speakResult(){
 
-  const to = document.getElementById("toLang").value;
+  if(!translatedText) return;
 
-  const speech = new SpeechSynthesisUtterance();
-  speech.text = translatedText;
-  speech.lang = voiceLangs[to];
-  speech.rate = 0.9;
-  speech.pitch = 1;
+  const to =
+  document.getElementById("toLang").value;
+
+  const speech =
+  new SpeechSynthesisUtterance(translatedText);
+
+  speech.lang = voices[to];
 
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(speech);
 }
 </script>
+
 </body>
 </html>
